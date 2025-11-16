@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>PsyPlatform - Tests Psicológicos</title>
+  <link rel="stylesheet" href="css/styles.css"/>
+  <link rel="stylesheet" href="css/responsive.css"/>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%235a67d8'/%3E%3Ctext x='32' y='40' font-size='28' text-anchor='middle' fill='white'%3E%CE%A8%3C/text%3E%3C/svg%3E" />
+  <script src="js/storage.js?v=dev" defer></script>
+  <script src="js/db.js?v=dev" defer></script>
+  <script src="js/auth.js?v=dev" defer></script>
+  <script src="js/app.js?v=dev" defer></script>
+</head>
+<body>
+  <header class="app-header">
+    <button id="hamburgerBtn" class="hamburger" aria-label="Abrir menú" aria-controls="sidebar" aria-expanded="false" style="display:none;">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+    <h1 class="brand">PsyPlatform</h1>
+
+    <div class="user-area">
+      <span id="currentUserInfo" class="user-info"></span>
+      <button id="themeToggleBtn" class="btn btn-ghost btn-small" aria-label="Cambiar tema" title="Cambiar tema">🌙</button>
+      <button id="logoutBtn" class="btn btn-secondary btn-small" style="display:none;">Cerrar sesión</button>
+    </div>
+  </header>
+
+  <div class="app-container">
+    <aside id="sidebar" class="sidebar hidden" aria-label="Navegación lateral">
+      <nav>
+        <ul id="menuList" class="menu-list">
+          <!-- Relleno dinámico según rol -->
+        </ul>
+      </nav>
+      <div class="sidebar-footer"></div>
+    </aside>
+
+    <main id="mainContent" class="main-content">
+      <!-- LOGIN -->
+      <section id="loginSection" class="card">
+        <h2>Iniciar sesión</h2>
+        <!-- <p class="muted">Use las credenciales de ejemplo: admin/admin123, consultor1/consultor123, consultante1/consultante123</p> -->
+        <form id="loginForm" class="form">
+          <div class="form-row">
+            <label for="loginUsername">Usuario</label>
+            <input id="loginUsername" name="username" type="text" required autocomplete="username" />
+          </div>
+          <div class="form-row">
+            <label for="loginPassword">Contraseña</label>
+            <input id="loginPassword" name="password" type="password" required autocomplete="current-password" />
+            <button type="button" id="togglePasswordBtn" class="btn btn-ghost btn-small" aria-label="Mostrar contraseña">Mostrar</button>
+          </div>
+          <div id="loginMsg" class="form-msg" role="alert" aria-live="polite"></div>
+          <button type="submit" class="btn btn-primary">Entrar</button>
+        </form>
+      </section>
+
+      <!-- DASHBOARD -->
+      <section id="dashboardSection" class="hidden">
+        <div class="section-header">
+          <h2>Dashboard</h2>
+          <p class="muted" id="dashboardSubtitle">Bienvenido</p>
+        </div>
+        <div class="grid grid-3">
+          <div class="card">
+            <h3>Pruebas</h3>
+            <p id="dashTestsCount">0</p>
+          </div>
+          <div class="card">
+            <h3>Asignaciones</h3>
+            <p id="dashAssignmentsCount">0</p>
+          </div>
+          <div class="card">
+            <h3>Resultados</h3>
+            <p id="dashResultsCount">0</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ADMIN - Gestión de Usuarios -->
+      <section id="adminUsersSection" class="hidden">
+        <div class="section-header">
+          <h2>Gestión de Usuarios</h2>
+        </div>
+        <div class="grid grid-2">
+          <div class="card">
+            <h3>Crear usuario</h3>
+            <form id="createUserForm" class="form">
+              <div class="form-row">
+                <label for="userUsername">Usuario</label>
+                <input id="userUsername" name="username" required/>
+              </div>
+              <div class="form-row">
+                <label for="userPassword">Contraseña</label>
+                <input id="userPassword" name="password" type="password" required/>
+              </div>
+              <div class="form-row">
+                <label for="userFullName">Nombre completo</label>
+                <input id="userFullName" name="fullName" required/>
+              </div>
+              <div class="form-row">
+                <label for="userEmail">Email</label>
+                <input id="userEmail" name="email" type="email" required/>
+              </div>
+              <div class="form-row">
+                <label for="userRole">Rol</label>
+                <select id="userRole" name="role" required>
+                  <option value="admin">Admin</option>
+                  <option value="consultor">Consultor</option>
+                  <option value="consultante">Consultante</option>
+                </select>
+              </div>
+              <div class="form-row conditional" id="consultorOfRow" style="display:none;">
+                <label for="userConsultorOf">Consultor asignado</label>
+                <select id="userConsultorOf" name="consultorId">
+                  <!-- Dinámico -->
+                </select>
+              </div>
+              <div id="createUserMsg" class="form-msg" aria-live="polite"></div>
+              <button type="submit" class="btn btn-primary">Crear usuario</button>
+            </form>
+          </div>
+          <div class="card">
+            <h3>Usuarios</h3>
+            <div class="table-scroll">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Usuario</th>
+                    <th>Nombre</th>
+                    <th>Rol</th>
+                    <th>Email</th>
+                    <th>Consultor</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody id="usersTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ADMIN - Configuración -->
+      <section id="adminSettingsSection" class="hidden">
+        <div class="section-header">
+          <h2>Configuración</h2>
+          <p class="muted">Herramientas de administración de datos (simuladas)</p>
+        </div>
+        <div class="card">
+          <div class="toolbar" style="display:flex;gap:8px;flex-wrap:wrap">
+            <button id="exportDataBtn" class="btn btn-secondary">Exportar datos (descargar JSON)</button>
+            <button id="exportAppDataBtn" class="btn btn-secondary">Exportar BD completa (appData.json)</button>
+            <button id="saveFsBtn" class="btn btn-secondary">Guardar en carpeta data/ (FS API)</button>
+            <button id="resetDbBtn" class="btn btn-danger">Resetear base de datos</button>
+          </div>
+          <small class="muted">Nota: Para persistir cambios en los archivos JSON locales, use "Guardar en carpeta data" en un navegador compatible (Chrome/Edge) y seleccione la carpeta <code>data/</code> del proyecto. localhost es considerado seguro para la File System Access API.</small>
+          <div id="adminSettingsMsg" class="form-msg"></div>
+        </div>
+      </section>
+
+      <!-- CONSULTOR - Crear Prueba -->
+      <section id="consultorCreateTestSection" class="hidden">
+        <div class="section-header">
+          <h2>Crear Prueba</h2>
+          <p class="muted">Agregue preguntas abiertas, cerradas u opciones múltiples.</p>
+        </div>
+        <div class="card">
+          <form id="createTestForm" class="form">
+            <div class="form-row">
+              <label for="testTitle">Título</label>
+              <input id="testTitle" name="title" required />
+            </div>
+            <div class="form-row">
+              <label for="testDescription">Descripción</label>
+              <textarea id="testDescription" name="description" rows="2" required></textarea>
+            </div>
+
+            <fieldset class="question-builder">
+              <legend>Constructor de preguntas</legend>
+              <div class="grid grid-3 align-end">
+                <div class="form-row">
+                  <label for="qType">Tipo</label>
+                  <select id="qType">
+                    <option value="open">Abierta</option>
+                    <option value="closed">Cerrada (única)</option>
+                    <option value="multiple">Múltiple</option>
+                  </select>
+                </div>
+                <div class="form-row grid-col-span-2">
+                  <label for="qText">Texto de la pregunta</label>
+                  <input id="qText" placeholder="Escriba la pregunta..." />
+                </div>
+              </div>
+
+              <div id="optionsWrapper" class="hidden">
+                <div class="options-header">
+                  <strong>Opciones</strong>
+                  <button type="button" id="addOptionBtn" class="btn btn-ghost btn-small">Añadir opción</button>
+                </div>
+                <ul id="optionsList" class="options-list"></ul>
+              </div>
+
+              <div class="form-row">
+                <label for="qImage">Imagen (opcional)</label>
+                <input id="qImage" type="file" accept="image/png,image/jpeg,image/gif" />
+                <small class="muted">Formatos: JPG/PNG/GIF, máx 2MB</small>
+                <div id="qImagePreview" class="image-preview"></div>
+              </div>
+
+              <div class="form-actions">
+                <button type="button" id="addQuestionBtn" class="btn btn-secondary">Agregar pregunta</button>
+              </div>
+            </fieldset>
+
+            <div class="card subtle">
+              <h3>Preguntas agregadas</h3>
+              <ul id="questionsList" class="question-list"></ul>
+            </div>
+
+            <div id="createTestMsg" class="form-msg" aria-live="polite"></div>
+            <button type="submit" class="btn btn-primary">Guardar prueba</button>
+          </form>
+        </div>
+
+        <div class="card">
+          <h3>Mis Pruebas</h3>
+          <div class="table-scroll">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Título</th>
+                  <th>Preguntas</th>
+                  <th>Creada</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="myTestsTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div id="testDetailCard" class="card subtle hidden">
+          <h3>Detalle de Prueba</h3>
+          <div id="testDetail"></div>
+        </div>
+      </section>
+
+      <!-- CONSULTOR - Asignar Pruebas -->
+      <section id="consultorAssignSection" class="hidden">
+        <div class="section-header">
+          <h2>Asignar Prueba</h2>
+          <p class="muted">Seleccione una prueba y un consultante.</p>
+        </div>
+        <div class="card">
+          <form id="assignForm" class="form">
+            <div class="grid grid-3">
+              <div class="form-row">
+                <label for="assignTest">Prueba</label>
+                <select id="assignTest"></select>
+              </div>
+              <div class="form-row">
+                <label for="assignConsultant">Consultante</label>
+                <select id="assignConsultant"></select>
+              </div>
+              <div class="form-row">
+                <label for="assignDue">Fecha límite</label>
+                <input id="assignDue" type="datetime-local" />
+              </div>
+            </div>
+            <div id="assignMsg" class="form-msg" aria-live="polite"></div>
+            <button type="submit" class="btn btn-primary">Crear asignación</button>
+          </form>
+        </div>
+
+        <div class="card">
+          <div class="flex space-between align-center" style="display:flex;justify-content:space-between;align-items:center;gap:8px">
+            <h3>Asignaciones</h3>
+            <button id="refreshAssignmentsBtn" class="btn btn-ghost btn-small">Actualizar</button>
+          </div>
+          <div class="table-scroll">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Prueba</th>
+                  <th>Consultante</th>
+                  <th>Estado</th>
+                  <th>Vence</th>
+                </tr>
+              </thead>
+              <tbody id="assignmentsTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- CONSULTOR - Resultados -->
+      <section id="consultorResultsSection" class="hidden">
+        <div class="section-header">
+          <h2>Resultados</h2>
+          <div class="form-inline">
+            <label for="filterConsultant">Filtrar consultante: </label>
+            <select id="filterConsultant"></select>
+          </div>
+        </div>
+        <div class="card">
+          <div class="table-scroll">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Resultado</th>
+                  <th>Asignación</th>
+                  <th>Consultante</th>
+                  <th>Prueba</th>
+                  <th>Fecha envío</th>
+                  <th>Detalle</th>
+                </tr>
+              </thead>
+              <tbody id="consultorResultsBody"></tbody>
+            </table>
+          </div>
+          <div id="consultorResultDetail" class="result-detail"></div>
+        </div>
+      </section>
+
+      <!-- CONSULTOR - Mis Consultantes -->
+      <section id="consultorClientsSection" class="hidden">
+        <div class="section-header">
+          <h2>Mis Consultantes</h2>
+          <p class="muted">Lista de consultantes asignados a usted.</p>
+        </div>
+        <div class="card">
+          <div class="table-scroll">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Nombre</th>
+                  <th>Email</th>
+                  <th>Asignaciones activas</th>
+                  <th>Resultados</th>
+                </tr>
+              </thead>
+              <tbody id="consultorClientsBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- CONSULTANTE - Pruebas Asignadas -->
+      <section id="consultanteAssignedSection" class="hidden">
+        <div class="section-header">
+          <h2>Pruebas Asignadas</h2>
+          <p class="muted">Inicie una prueba pendiente.</p>
+        </div>
+        <div class="card">
+          <div id="assignedMsg" class="form-msg" aria-live="polite"></div>
+          <div class="table-scroll">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Asignación</th>
+                  <th>Prueba</th>
+                  <th>Estado</th>
+                  <th>Vence</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="assignedToMeBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- CONSULTANTE - Realizar Prueba -->
+      <section id="takeTestSection" class="hidden">
+        <div class="section-header">
+          <h2 id="takeTestTitle">Realizar Prueba</h2>
+          <p id="takeTestDesc" class="muted"></p>
+        </div>
+        <div class="card">
+          <form id="takeTestForm" class="form">
+            <div id="takeTestQuestions"></div>
+            <div id="takeTestMsg" class="form-msg" aria-live="polite"></div>
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary">Enviar respuestas</button>
+              <button type="button" id="saveProgressBtn" class="btn btn-secondary">Guardar avance</button>
+              <button type="button" id="cancelTakeTestBtn" class="btn btn-ghost">Cancelar</button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <!-- CONSULTANTE - Mis Resultados -->
+      <section id="consultanteMyResultsSection" class="hidden">
+        <div class="section-header">
+          <h2>Mis Resultados</h2>
+        </div>
+        <div class="card">
+          <div class="table-scroll">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Resultado</th>
+                  <th>Prueba</th>
+                  <th>Fecha envío</th>
+                  <th>Detalle</th>
+                </tr>
+              </thead>
+              <tbody id="myResultsBody"></tbody>
+            </table>
+          </div>
+          <div id="myResultDetail" class="result-detail"></div>
+        </div>
+      </section>
+
+      <!-- CONTACTO 
+      -->
+      <section id="contactSection" class="hidden">
+        <div class="section-header">
+          <h2>Contacto</h2>
+          <p class="muted">Envíenos su mensaje.</p>
+        </div>
+        <div class="card">
+          <form id="contactForm" class="form">
+            <div class="grid grid-2">
+              <div class="form-row">
+                <label for="contactName">Nombre</label>
+                <input id="contactName" name="name" required/>
+              </div>
+              <div class="form-row">
+                <label for="contactEmail">Email</label>
+                <input id="contactEmail" name="email" type="email" required/>
+              </div>
+            </div>
+            <div class="form-row">
+              <label for="contactSubject">Asunto</label>
+              <input id="contactSubject" name="subject" required/>
+            </div>
+            <div class="form-row">
+              <label for="contactMessage">Mensaje</label>
+              <textarea id="contactMessage" name="message" rows="4" required></textarea>
+            </div>
+            <div id="contactMsg" class="form-msg" aria-live="polite"></div>
+            <button type="submit" class="btn btn-primary">Enviar</button>
+          </form>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <footer class="app-footer">
+    <div class="social">
+      <a href="https://www.facebook.com" class="social-link" target="_blank" rel="noopener" aria-label="Facebook">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M22 12.06C22 6.48 17.52 2 11.94 2S2 6.48 2 12.06c0 4.99 3.66 9.13 8.44 9.94v-7.03H7.9v-2.91h2.54V9.41c0-2.5 1.49-3.89 3.77-3.89 1.09 0 2.23.2 2.23.2v2.45H15.7c-1.24 0-1.63.77-1.63 1.56v1.88h2.78l-.44 2.91h-2.34V22c4.78-.81 8.44-4.95 8.44-9.94z"></path></svg>
+      </a>
+      <a href="https://www.twitter.com" class="social-link" target="_blank" rel="noopener" aria-label="Twitter">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M22.46 6c-.77.35-1.6.58-2.46.69a4.27 4.27 0 0 0 1.88-2.37 8.53 8.53 0 0 1-2.7 1.03 4.25 4.25 0 0 0-7.24 3.88 12.06 12.06 0 0 1-8.76-4.44 4.24 4.24 0 0 0 1.32 5.67c-.66-.02-1.28-.2-1.83-.5v.05a4.25 4.25 0 0 0 3.41 4.17c-.31.08-.65.12-1 .12-.24 0-.48-.02-.7-.07a4.26 4.26 0 0 0 3.96 2.94A8.53 8.53 0 0 1 2 19.55 12.03 12.03 0 0 0 8.29 21.4c7.55 0 11.68-6.26 11.68-11.68v-.53A8.36 8.36 0 0 0 22.46 6z"></path></svg>
+      </a>
+      <a href="https://www.linkedin.com" class="social-link" target="_blank" rel="noopener" aria-label="LinkedIn">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6.94 6.94A2.44 2.44 0 1 1 2.06 6.94a2.44 2.44 0 0 1 4.88 0zM2.5 21.5h4.99V9.5H2.5v12zm7.5 0h4.99v-6.58c0-3.5-4.01-3.23-4.01 0v6.58H10zm8-12c-2.22 0-3.23 1.22-3.77 2.07h-.05V9.5H9.99v12h4.99v-6.58c0-1.75.33-3.44 2.5-3.44 2.13 0 2.16 1.99 2.16 3.55V21.5h4.99v-7.06c0-3.63-.78-5.94-4.13-5.94z"></path></svg>
+      </a>
+      <a href="https://www.instagram.com" class="social-link" target="_blank" rel="noopener" aria-label="Instagram">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M7 2C4.243 2 2 4.243 2 7v10c0 2.757 2.243 5 5 5h10c2.757 0 5-2.243 5-5V7c0-2.757-2.243-5-5-5H7zm0 2h10a3 3 0 013 3v10a3 3 0 01-3 3H7a3 3 0 01-3-3V7a3 3 0 013-3zm5 2a5 5 0 105 5 5 5 0 00-5-5zm0 2a3 3 0 11-3 3 3 3 0 013-3zm5.5-.75a1.25 1.25 0 11-1.25 1.25 1.25 1.25 0 011.25-1.25z" />
+        </svg>
+      </a>
+    </div>
+  </footer>
+
+</body>
+</html>

@@ -1,0 +1,148 @@
+/* Responsive.css
+   - Puntos de corte:
+     - Móvil: < 768px
+     - Tablet: 768px - 1024px
+     - Desktop: > 1024px (los estilos base están en styles.css)
+   - Sidebar off-canvas en móvil (toggle .open en #sidebar)
+   - Sidebar colapsable en desktop (toggle .sidebar-collapsed en body)
+*/
+
+/* Sidebar colapsada (desktop) */
+body.sidebar-collapsed .app-container {
+  grid-template-columns: 72px 1fr;
+}
+body.sidebar-collapsed .sidebar {
+  padding-left: 8px;
+  padding-right: 8px;
+}
+body.sidebar-collapsed .menu-list li a,
+body.sidebar-collapsed .menu-list li button {
+  justify-content: center;
+  gap: 0;
+  padding: 10px;
+  overflow: hidden;
+  min-width: 0;
+  font-size: 0; /* evita render raro del texto en algunos Chromium */
+  color: transparent !important; /* oculta cualquier render residual de texto */
+  text-shadow: none !important;  /* evita ghosting */
+  white-space: nowrap;           /* evita saltos raros */
+  position: relative;            /* ancla posicionamiento para label recortado */
+  caret-color: transparent !important;
+}
+body.sidebar-collapsed .menu-list li a > span:not(.menu-icon),
+body.sidebar-collapsed .menu-list li button > span:not(.menu-icon) {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  overflow: hidden !important;
+  visibility: hidden !important;
+}
+body.sidebar-collapsed .menu-icon {
+  display: inline-flex !important;
+  width: 20px;
+  height: 20px;
+  align-items: center;
+  justify-content: center;
+  color: var(--text) !important; /* mantenemos el ícono visible cuando el texto está transparente */
+}
+/* Asegura que el SVG herede el color visible cuando está colapsado */
+body.sidebar-collapsed .menu-icon svg {
+  color: var(--text) !important;
+  fill: currentColor !important;
+}
+/* Oculta fuerte el texto junto al ícono (modo Brave-safe) */
+body.sidebar-collapsed .menu-list li a .menu-label,
+body.sidebar-collapsed .menu-list li button .menu-label {
+  display: inline-block !important;
+  position: absolute !important;
+  clip: rect(0 0 0 0) !important;
+  clip-path: inset(50%) !important;
+  width: 1px !important;
+  height: 1px !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  white-space: nowrap !important;
+  padding: 0 !important;
+  border: 0 !important;
+  user-select: none !important;
+  -webkit-user-select: none !important;
+}
+/* Extra: oculta el span de la etiqueta inmediatamente después del span del ícono */
+body.sidebar-collapsed .menu-list .menu-icon + span {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  overflow: hidden !important;
+  visibility: hidden !important;
+}
+
+/* Ajustes para tablet */
+@media (max-width: 1024px) {
+  :root { --sidebar-w: 230px; }
+
+  .grid-3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+/* Móvil: sidebar off-canvas y layout en una columna */
+@media (max-width: 768px) {
+  .app-container {
+    grid-template-columns: 1fr;
+  }
+
+  /* Ajustes del header */
+  .brand { font-size: 1.1rem; }
+  .user-info { display: none; } /* mantener compacto */
+
+  /* Sidebar off-canvas */
+  .sidebar {
+    position: fixed;
+    top: 56px; /* altura aproximada del header */
+    left: 0;
+    height: calc(100vh - 56px);
+    width: min(86vw, 320px);
+    max-width: 86vw;
+    transform: translateX(-100%);
+    transition: transform .25s ease, box-shadow .25s ease;
+    box-shadow: none;
+    z-index: 50;
+  }
+  /* Estado abierto del sidebar (JS: #sidebar.classList.add('open')) */
+  .sidebar.open {
+    transform: translateX(0);
+    box-shadow: 0 24px 60px rgba(0,0,0,.6);
+  }
+
+  /* Overlay opcional usando ::after en el contenido principal para simplificar */
+  .main-content::after {
+    content: "";
+    position: fixed;
+    inset: 56px 0 0 0;
+    background: rgba(0,0,0,.35);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .2s ease;
+    z-index: 40;
+  }
+  /* Cuando el sidebar está abierto, muestra overlay (JS agrega body.mobile-menu-open) */
+  body.mobile-menu-open .main-content::after {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  /* Las grillas se apilan */
+  .grid-3, .grid-2 { grid-template-columns: 1fr; }
+
+  /* Tablas: permitir scroll horizontal (ya hay overflow en .table-scroll) */
+  .table { min-width: 560px; }
+}
+
+/* Teléfonos muy pequeños */
+@media (max-width: 380px) {
+  .btn { padding: 9px 12px; }
+  .btn-small { padding: 7px 9px; }
+  .card { padding: 14px; }
+}

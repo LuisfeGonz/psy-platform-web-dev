@@ -1,0 +1,13 @@
+{
+  "assignments": [
+    {
+      "id": "assign_001",
+      "testId": "test_001",
+      "consultantId": "user_003",
+      "consultorId": "user_002",
+      "assignedDate": "2024-01-15T09:00:00Z",
+      "dueDate": "2025-12-31T23:59:59Z",
+      "status": "pending"
+    }
+  ]
+}

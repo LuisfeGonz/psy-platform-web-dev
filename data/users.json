@@ -1,0 +1,32 @@
+{
+  "users": [
+    {
+      "id": "user_001",
+      "username": "admin",
+      "password": "admin123",
+      "role": "admin",
+      "fullName": "Administrador del Sistema",
+      "email": "admin@psyplatform.com",
+      "createdAt": "2024-01-01T00:00:00Z"
+    },
+    {
+      "id": "user_002",
+      "username": "consultor1",
+      "password": "consultor123",
+      "role": "consultor",
+      "fullName": "Dr. Juan Pérez",
+      "email": "juan.perez@psyplatform.com",
+      "createdAt": "2024-01-01T00:00:00Z"
+    },
+    {
+      "id": "user_003",
+      "username": "consultante1",
+      "password": "consultante123",
+      "role": "consultante",
+      "fullName": "María García",
+      "email": "maria.garcia@email.com",
+      "consultorId": "user_002",
+      "createdAt": "2024-01-01T00:00:00Z"
+    }
+  ]
+}
