@@ -6,8 +6,9 @@
 (function () {
   'use strict';
 
-  const LS_SESSION_USER = 'currentUser';  // almacena solo la sesión del usuario actual
-  const LS_APP_KEY = 'appData';           // clave usada por DB para respaldo (solo informativo aquí)
+  const LS_PREFIX = `psyplatform_${location.hostname}${location.pathname.replace(/[^a-z0-9]+/gi,'_')}`;
+  const LS_SESSION_USER = `${LS_PREFIX}:currentUser`;  // almacena solo la sesión del usuario actual
+  const LS_APP_KEY = `${LS_PREFIX}:appData`;           // clave usada por DB para respaldo (solo informativo aquí)
 
   // Sanitiza el usuario para no guardar datos sensibles
   function sanitizeUser(user) {

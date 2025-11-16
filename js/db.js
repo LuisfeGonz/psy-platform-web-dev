@@ -5,7 +5,8 @@
 (function () {
   'use strict';
 
-  const LS_APP_KEY = 'appData'; // respaldo completo de la "BD" en LocalStorage
+  const LS_PREFIX = `psyplatform_${location.hostname}${location.pathname.replace(/[^a-z0-9]+/gi,'_')}`;
+  const LS_APP_KEY = `${LS_PREFIX}:appData`; // respaldo completo de la "BD" en LocalStorage
 
   // Configuración por colección para acceder a la estructura anidada
   const COLLECTIONS = {

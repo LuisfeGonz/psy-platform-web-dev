@@ -475,6 +475,17 @@
     const resetBtn = $('resetDbBtn');
     const msg = $('adminSettingsMsg');
 
+    // Ajuste para GitHub Pages: actualizar nota de la sección Configuración
+    try {
+      const adminSec = $('adminSettingsSection');
+      if (adminSec) {
+        const noteEl = adminSec.querySelector('small.muted');
+        if (noteEl && (location.hostname.endsWith('github.io'))) {
+          noteEl.innerHTML = 'Nota: En contextos seguros (GitHub Pages https://*.github.io y http://localhost) la File System Access API funciona. El botón "Guardar en carpeta data" escribe archivos en <em>tu computadora</em> (no en el repositorio remoto). En <code>file://</code> la API no está disponible.';
+        }
+      }
+    } catch (e) {}
+
     if (exportBtn) {
       exportBtn.addEventListener('click', () => {
         try {
