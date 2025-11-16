@@ -7,4 +7,4 @@ La persistencia se maneja en memoria y en LocalStorage, con herramientas para ex
 Es un proyecto académico/demostrativo sin servidor backend, por lo que las credenciales en `data/users.json` están en texto plano y no debe usarse en producción. 
 Para probar, abre `index.html` en un navegador moderno (idealmente vía `http://localhost`).
 
-Link video demo: https://drive.google.com/file/d/1YYiHk43HXoBPtK4IT3zkUc1DfMkLp0fG/view?usp=sharing
+Link video demo localhost y github pages: https://drive.google.com/drive/folders/1hv8ObAuImivpOUkZanE0fyiPczrg9BdV?usp=sharing
