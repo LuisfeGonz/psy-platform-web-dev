@@ -6,3 +6,5 @@ por rol, tema claro/oscuro e interfaz responsiva.
 La persistencia se maneja en memoria y en LocalStorage, con herramientas para exportar y guardar datos en archivos JSON (incluyendo la File System Access API en Chrome). 
 Es un proyecto académico/demostrativo sin servidor backend, por lo que las credenciales en `data/users.json` están en texto plano y no debe usarse en producción. 
 Para probar, abre `index.html` en un navegador moderno (idealmente vía `http://localhost`).
+
+Link video demo: https://drive.google.com/file/d/1YYiHk43HXoBPtK4IT3zkUc1DfMkLp0fG/view?usp=sharing
